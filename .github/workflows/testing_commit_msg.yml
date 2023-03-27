@@ -1,14 +1,9 @@
 name: Workflow1
-
- 
-
 on:
   pull_request:
     types: [opened, edited, reopened]
     branches:
       - '*'
-
- 
 
 jobs:
   commit_message_check:
