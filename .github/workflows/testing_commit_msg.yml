@@ -4,13 +4,15 @@ on:
     types: [opened, edited, reopened]
     branches:
       - '*'
-
+permissions:
+  contents: write
+  
 jobs:
   commit_message_check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@2
 
       - name: Check commit message
         run: |
