@@ -1,8 +1,11 @@
-name: Commit Message Check
+name: 'Commit Message Check'
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
 jobs:
   commit-message-check:
     runs-on: ubuntu-latest
