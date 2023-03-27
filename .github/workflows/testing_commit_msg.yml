@@ -14,10 +14,10 @@ jobs:
 
       - name: Check commit message
         run: |
-          commit_msg=$(git log --format=%B -n 1 ${{ github.event.head_commit.message }})
-          echo $commit_msg
-          echo "Okayv1"
-          if [[ ! "$commit_msg" =~ ^AB#.* ]]; then
-            echo "Error: Commit message must start with 'AB#'"
-            exit 1
-          fi
+         commit_message=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+         echo $commit_msg
+         echo "Okayv1"
+         if [[ ! "$commit_message" =~ (^|\s)AB#[0-9]+(\s|$) ]]; then
+         echo "Commit message should contain AB# followed by a number and separated from other text by a space"
+         exit 1
+         fi
