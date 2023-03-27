@@ -2,13 +2,16 @@ name: Check Commit Message
 on:
   pull_request:
     types: [opened, edited, reopened]
+    
+permissions:
+  contents: write
 
 jobs:
   commit-message-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@2
 
       - name: Check commit message
         run: |
