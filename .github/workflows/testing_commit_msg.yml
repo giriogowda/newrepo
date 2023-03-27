@@ -1,23 +1,40 @@
-name: Workflow1
+---
+name: 'How to get commit message'
+
 on:
   pull_request:
-    types: [opened, edited, reopened]
-    branches:
-      - '*'
+    types:
+      - edited
+      - opened
+      - synchronize
 
 jobs:
-  commit_message_check:
+  get_message:
+    name: 'Get commit message'
     runs-on: ubuntu-latest
+    permissions:
+      # this permission should be set to be able use secrets.GITHUB_TOKEN
+      id-token: write
+      # not sure if this permission is necessary, just didn't try to remove it when testing
+      contents: read
+      # this permission should be set to be able get commits data by curl request
+      pull-requests: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check commit message
+      - name: Get commits
+        env:
+          # github URL to list commits
+          COMMITS_URL: ${{ github.event.pull_request.commits_url }}
         run: |
-         commit_message=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
-         echo $commit_msg
-         echo "Okayv1"
-         if [[ ! "$commit_message" =~ (^|\s)AB#[0-9]+(\s|$) ]]; then
-         echo "Commit message should contain AB# followed by a number and separated from other text by a space"
-         exit 1
-         fi
+          if [ "${COMMITS_URL}x" != "x" ]; then
+            # get commits list and pick up last one by jq
+            # caution: only 100 commits will be taken by curl
+            # if your PR has more than 100 commits
+            # you have to set page query parameter
+            # and request last page commits
+            # API URL details: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-commits-on-a-pull-request
+            LAST_MSG=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "${COMMITS_URL}?per_page=100" | jq -r .[-1].commit.message)
+            # set environment variable
+            echo "LAST_MSG=${LAST_MSG}" >> "${GITHUB_ENV}"
+          else
+            echo 'LAST_MSG=' >> "${GITHUB_ENV}"
+          fi
