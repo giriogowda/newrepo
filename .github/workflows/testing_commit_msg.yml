@@ -1,18 +1,28 @@
-name: 'Commit Message Check'
+name: Workflow1
+
+ 
+
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
-      - reopened
-      - synchronize
+  pull_request:
+    types: [opened, edited, reopened]
+    branches:
+      - '*'
+
+ 
+
 jobs:
-  commit-message-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Check commit message
-        uses: giriogowda/customaction@Release
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  commit_message_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check commit message
+        run: |
+          commit_msg=$(git log --format=%B -n 1 $GITHUB_SHA)
+          echo $commit_msg
+          echo "Okayv1"
+          if [[ ! "$commit_msg" =~ ^AB#.* ]]; then
+            echo "Error: Commit message must start with 'AB#'"
+            exit 1
+          fi
