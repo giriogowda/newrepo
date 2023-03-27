@@ -1,40 +1,20 @@
----
-name: 'How to get commit message'
-
+name: Check Commit Message
 on:
   pull_request:
-    types:
-      - edited
-      - opened
-      - synchronize
+    types: [opened, edited, reopened]
 
 jobs:
-  get_message:
-    name: 'Get commit message'
+  commit-message-check:
     runs-on: ubuntu-latest
-    permissions:
-      # this permission should be set to be able use secrets.GITHUB_TOKEN
-      id-token: write
-      # not sure if this permission is necessary, just didn't try to remove it when testing
-      contents: read
-      # this permission should be set to be able get commits data by curl request
-      pull-requests: read
     steps:
-      - name: Get commits
-        env:
-          # github URL to list commits
-          COMMITS_URL: ${{ github.event.pull_request.commits_url }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check commit message
         run: |
-          if [ "${COMMITS_URL}x" != "x" ]; then
-            # get commits list and pick up last one by jq
-            # caution: only 100 commits will be taken by curl
-            # if your PR has more than 100 commits
-            # you have to set page query parameter
-            # and request last page commits
-            # API URL details: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-commits-on-a-pull-request
-            LAST_MSG=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "${COMMITS_URL}?per_page=100" | jq -r .[-1].commit.message)
-            # set environment variable
-            echo "LAST_MSG=${LAST_MSG}" >> "${GITHUB_ENV}"
-          else
-            echo 'LAST_MSG=' >> "${GITHUB_ENV}"
+          commit_msg=$(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }})
+          echo "Commit message is: $commit_msg"
+          if [[ ! "$commit_msg" =~ AB#ID ]]; then
+            echo "Error: Commit message must contain 'AB#ID'"
+            exit 1
           fi
