@@ -1,0 +1,15 @@
+name: Commit Message Check
+on:
+  push:
+    branches:
+      - main
+jobs:
+  commit-message-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check commit message
+        uses: giriogowda/customaction@Release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
