@@ -46,3 +46,4 @@ jobs:
             exit 1
           else
             echo "The ID is valid"
+          fi
