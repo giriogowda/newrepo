@@ -26,11 +26,11 @@ jobs:
           echo "Latest message is: $commit_message"
 
           # Try to extract Ticket ID from commit message
-          id=$(echo "$commit_message" |grep -E -q '\bAB#[0-9]+\b' | cut -d '#' -f 2)
+          id=$(echo "$commit_message" | grep -Eo '\bAB#[0-9]+\b' | cut -d '#' -f 2)
 
           if [[ -z "$id" ]]; then
             # If Ticket ID not found in commit message, extract from PR title
-            pr_title_id=$(echo "${{ github.event.pull_request.title }}" | grep -E -q '\bAB#[0-9]+\b' | cut -d '#' -f 2)
+            pr_title_id=$(echo "${{ github.event.pull_request.title }}" | grep -Eo '\bAB#[0-9]+\b' | cut -d '#' -f 2)
             if [[ -z "$pr_title_id" ]]; then
               echo "Unable to find Ticket ID in commit message or PR title. Aborting."
               exit 1
